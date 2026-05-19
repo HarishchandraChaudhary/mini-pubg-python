@@ -1,26 +1,38 @@
-# 🎮 Mini PUBG 2D Game (Python + Pygame)
+# 🎮 Mini PUBG 2D - Advanced Edition
 
-A simple PUBG-style 2D survival shooting game built using Python and Pygame.
+A professional PUBG-style 2D survival shooter game built using Python and Pygame.
 
-Players can:
-- Move using WASD
-- Aim with mouse
-- Shoot enemies
-- Survive as long as possible
-- Increase score by defeating enemies
+This project features:
+- Modern game UI
+- Smooth player movement
+- Enemy AI
+- Shooting mechanics
+- Reload system
+- Sprint system
+- Particle effects
+- Health system
+- Minimap
+- Advanced HUD
+- Battle royale inspired gameplay
 
 ---
 
 # 🚀 Features
 
-✅ Smooth player movement  
-✅ Mouse aiming system  
-✅ Shooting mechanics  
-✅ Enemy AI chasing player  
-✅ Health system  
+✅ Advanced PUBG-style UI  
+✅ Top-down 2D shooter gameplay  
+✅ Smooth WASD movement  
+✅ Mouse aiming and shooting  
+✅ Enemy AI system  
+✅ Reload mechanics  
+✅ Sprint system  
+✅ Health and ammo system  
+✅ Crosshair system  
+✅ Particle hit effects  
+✅ Modern HUD design  
+✅ Dynamic enemy spawning  
 ✅ Score tracking  
 ✅ Game over screen  
-✅ Random enemy spawning  
 
 ---
 
@@ -49,7 +61,7 @@ cd mini-pubg-python
 
 ---
 
-## 3. Install Dependencies
+## 3. Install Requirements
 
 ```bash
 pip install -r requirements.txt
@@ -73,8 +85,10 @@ python main.py
 | S | Move Down |
 | A | Move Left |
 | D | Move Right |
+| SHIFT | Sprint |
 | Mouse | Aim |
 | Left Click | Shoot |
+| R | Reload |
 
 ---
 
@@ -82,6 +96,14 @@ python main.py
 
 ```bash
 mini-pubg-python/
+│
+├── assets/
+│   ├── player.png
+│   ├── enemy.png
+│   ├── bullet.png
+│   ├── background.png
+│   ├── gunshot.wav
+│   └── hit.wav
 │
 ├── main.py
 ├── requirements.txt
@@ -91,39 +113,52 @@ mini-pubg-python/
 
 ---
 
-# 🧠 Game Logic
+# 🧠 Gameplay
 
-The game includes:
-- Real-time movement system
-- Enemy spawning from map edges
-- Collision detection
-- Bullet physics
-- Health management
-- Score system
-
-Enemies continuously chase the player until defeated.
+- Survive against endless enemies
+- Shoot enemies to increase score
+- Reload when ammo is empty
+- Sprint to escape enemies
+- Avoid enemy attacks
+- Try to achieve the highest score
 
 ---
 
-# 🔥 Future Improvements
+# 🔥 Game Systems
 
-- Battle Royale Map
-- Sound Effects
-- Multiple Guns
-- Health Packs
-- Grenades
-- Multiplayer Mode
-- Safe Zone System
-- Leaderboard
-- Character Animation
+## ✅ Enemy AI
+Enemies automatically chase the player using movement calculations.
+
+## ✅ Shooting System
+Bullets are generated toward the mouse direction.
+
+## ✅ Reload System
+Press `R` to reload ammo.
+
+## ✅ Particle Effects
+Hit effects appear when enemies are damaged.
+
+## ✅ UI/HUD
+Includes:
+- Health bar
+- Ammo counter
+- Score system
+- Minimap
+- Crosshair
 
 ---
 
 # 📸 Screenshot
 
-(Add your gameplay screenshot here)
+## Game UI Preview
 
-Example:
+Add your screenshot inside project folder:
+
+```bash
+screenshot.png
+```
+
+Then use:
 
 ```markdown
 ![Game Screenshot](screenshot.png)
@@ -131,16 +166,70 @@ Example:
 
 ---
 
-# 📌 Requirements
+# 📦 Requirements
 
-- Python 3.8+
-- Pygame
+```txt
+pygame==2.6.1
+```
 
 ---
 
-# 📜 License
+# 🔮 Future Improvements
 
-This project is open-source and free to use.
+- Battle Royale shrinking zone
+- Multiplayer support
+- Online matchmaking
+- Weapon inventory system
+- Loot system
+- Vehicles
+- Grenades
+- Sound settings
+- Character animation
+- Login system
+- Online leaderboard
+- Skin customization
+- FPS counter
+- Real map system
+
+---
+
+# 🖥️ Build EXE File
+
+Install PyInstaller:
+
+```bash
+pip install pyinstaller
+```
+
+Build executable:
+
+```bash
+pyinstaller --onefile main.py
+```
+
+EXE file will be inside:
+
+```bash
+dist/
+```
+
+---
+
+# ☁️ Upload to GitHub
+
+```bash
+git init
+
+git add .
+
+git commit -m "Initial PUBG 2D Game"
+
+git branch -M main
+
+git remote add origin https://github.com/HarishchandraChaudhary/mini-pubg-python.git
+
+git push -u origin main
+```
 
 ---
 
@@ -161,5 +250,11 @@ If you like this project:
 🍴 Fork the project  
 🐛 Report issues  
 🚀 Contribute improvements  
+
+---
+
+# 📜 License
+
+This project is open-source and free to use.
 
 ---
