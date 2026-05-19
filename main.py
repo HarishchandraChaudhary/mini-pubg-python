@@ -4,143 +4,259 @@ import math
 import sys
 
 pygame.init()
+pygame.mixer.init()
 
-# Screen
-WIDTH = 1200
-HEIGHT = 700
+# ===============================
+# SCREEN SETTINGS
+# ===============================
+WIDTH = 1400
+HEIGHT = 800
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Mini PUBG 2D")
+pygame.display.set_caption("Mini PUBG 2D - Advanced")
 
 clock = pygame.time.Clock()
 
-# Colors
-GREEN = (16, 185, 129)
-BLUE = (59, 130, 246)
+# ===============================
+# COLORS
+# ===============================
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-BLACK = (0, 0, 0)
+BLACK = (20, 20, 20)
+GREEN = (0, 255, 100)
+RED = (255, 60, 60)
+YELLOW = (255, 220, 0)
+BLUE = (80, 180, 255)
+GRAY = (40, 40, 40)
 
-# Fonts
-font = pygame.font.SysFont("Arial", 30)
+# ===============================
+# FONTS
+# ===============================
+font = pygame.font.SysFont("Arial", 28)
+big_font = pygame.font.SysFont("Arial", 50)
 
-# Player
-player_x = WIDTH // 2
-player_y = HEIGHT // 2
-player_size = 20
-player_speed = 5
-player_health = 100
+# ===============================
+# PLAYER
+# ===============================
+player = {
+    "x": WIDTH // 2,
+    "y": HEIGHT // 2,
+    "radius": 25,
+    "speed": 5,
+    "health": 100,
+    "ammo": 30,
+    "max_ammo": 30,
+    "reloading": False,
+    "reload_time": 0
+}
 
-# Bullets
+# ===============================
+# BULLETS
+# ===============================
 bullets = []
 
-# Enemies
+# ===============================
+# PARTICLES
+# ===============================
+particles = []
+
+# ===============================
+# ENEMIES
+# ===============================
 enemies = []
 
-# Score
+# ===============================
+# SCORE
+# ===============================
 score = 0
 
-# Enemy Spawn Event
+# ===============================
+# ENEMY SPAWN TIMER
+# ===============================
 SPAWN_ENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(SPAWN_ENEMY, 1200)
+pygame.time.set_timer(SPAWN_ENEMY, 1000)
+
+# ===============================
+# FUNCTIONS
+# ===============================
+
+def draw_text(text, font, color, x, y):
+    img = font.render(text, True, color)
+    screen.blit(img, (x, y))
+
+def spawn_enemy():
+    side = random.randint(0, 3)
+
+    if side == 0:
+        x = random.randint(0, WIDTH)
+        y = -50
+
+    elif side == 1:
+        x = WIDTH + 50
+        y = random.randint(0, HEIGHT)
+
+    elif side == 2:
+        x = random.randint(0, WIDTH)
+        y = HEIGHT + 50
+
+    else:
+        x = -50
+        y = random.randint(0, HEIGHT)
+
+    enemy = {
+        "x": x,
+        "y": y,
+        "radius": 20,
+        "speed": random.uniform(1.5, 3),
+        "health": 100
+    }
+
+    enemies.append(enemy)
+
+def create_particles(x, y):
+    for _ in range(10):
+        particles.append({
+            "x": x,
+            "y": y,
+            "dx": random.uniform(-3, 3),
+            "dy": random.uniform(-3, 3),
+            "life": 20
+        })
+
+# ===============================
+# MAIN LOOP
+# ===============================
 
 running = True
 
 while running:
-    clock.tick(60)
 
-    # Background
-    screen.fill(GREEN)
+    dt = clock.tick(60)
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
-    # Events
+    # ===============================
+    # EVENTS
+    # ===============================
+
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             running = False
 
-        # Shoot Bullet
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            angle = math.atan2(mouse_y - player_y, mouse_x - player_x)
-
-            bullet = {
-                "x": player_x,
-                "y": player_y,
-                "dx": math.cos(angle) * 10,
-                "dy": math.sin(angle) * 10,
-                "size": 5
-            }
-
-            bullets.append(bullet)
-
-        # Spawn Enemy
+        # Spawn enemies
         if event.type == SPAWN_ENEMY:
-            side = random.randint(0, 3)
+            spawn_enemy()
 
-            if side == 0:
-                x = random.randint(0, WIDTH)
-                y = -30
+        # Shoot
+        if event.type == pygame.MOUSEBUTTONDOWN:
 
-            elif side == 1:
-                x = WIDTH + 30
-                y = random.randint(0, HEIGHT)
+            if player["ammo"] > 0 and not player["reloading"]:
 
-            elif side == 2:
-                x = random.randint(0, WIDTH)
-                y = HEIGHT + 30
+                angle = math.atan2(
+                    mouse_y - player["y"],
+                    mouse_x - player["x"]
+                )
 
-            else:
-                x = -30
-                y = random.randint(0, HEIGHT)
+                bullets.append({
+                    "x": player["x"],
+                    "y": player["y"],
+                    "dx": math.cos(angle) * 15,
+                    "dy": math.sin(angle) * 15,
+                    "radius": 5
+                })
 
-            enemy = {
-                "x": x,
-                "y": y,
-                "size": 20,
-                "speed": random.uniform(1, 2)
-            }
+                player["ammo"] -= 1
 
-            enemies.append(enemy)
+        # Reload
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                player["reloading"] = True
+                player["reload_time"] = pygame.time.get_ticks()
 
-    # Movement
+    # ===============================
+    # BACKGROUND
+    # ===============================
+
+    screen.fill((34, 139, 34))
+
+    # Grid effect
+    for x in range(0, WIDTH, 60):
+        pygame.draw.line(screen, (40, 150, 40), (x, 0), (x, HEIGHT))
+
+    for y in range(0, HEIGHT, 60):
+        pygame.draw.line(screen, (40, 150, 40), (0, y), (WIDTH, y))
+
+    # ===============================
+    # PLAYER MOVEMENT
+    # ===============================
+
     keys = pygame.key.get_pressed()
 
+    speed = player["speed"]
+
+    # Sprint
+    if keys[pygame.K_LSHIFT]:
+        speed = 8
+
     if keys[pygame.K_w]:
-        player_y -= player_speed
+        player["y"] -= speed
 
     if keys[pygame.K_s]:
-        player_y += player_speed
+        player["y"] += speed
 
     if keys[pygame.K_a]:
-        player_x -= player_speed
+        player["x"] -= speed
 
     if keys[pygame.K_d]:
-        player_x += player_speed
+        player["x"] += speed
 
-    # Keep Player Inside Screen
-    player_x = max(0, min(WIDTH, player_x))
-    player_y = max(0, min(HEIGHT, player_y))
+    # Boundaries
+    player["x"] = max(0, min(WIDTH, player["x"]))
+    player["y"] = max(0, min(HEIGHT, player["y"]))
 
-    # Draw Player
-    pygame.draw.circle(screen, BLUE, (int(player_x), int(player_y)), player_size)
+    # ===============================
+    # PLAYER DRAW
+    # ===============================
 
-    # Gun Direction
-    angle = math.atan2(mouse_y - player_y, mouse_x - player_x)
+    angle = math.atan2(
+        mouse_y - player["y"],
+        mouse_x - player["x"]
+    )
 
-    gun_x = player_x + math.cos(angle) * 30
-    gun_y = player_y + math.sin(angle) * 30
+    # Shadow
+    pygame.draw.circle(
+        screen,
+        (0, 0, 0),
+        (int(player["x"] + 4), int(player["y"] + 4)),
+        player["radius"]
+    )
+
+    # Body
+    pygame.draw.circle(
+        screen,
+        BLUE,
+        (int(player["x"]), int(player["y"])),
+        player["radius"]
+    )
+
+    # Gun
+    gun_x = player["x"] + math.cos(angle) * 40
+    gun_y = player["y"] + math.sin(angle) * 40
 
     pygame.draw.line(
         screen,
-        WHITE,
-        (player_x, player_y),
+        BLACK,
+        (player["x"], player["y"]),
         (gun_x, gun_y),
-        6
+        8
     )
 
-    # Update Bullets
+    # ===============================
+    # BULLETS
+    # ===============================
+
     for bullet in bullets[:]:
+
         bullet["x"] += bullet["dx"]
         bullet["y"] += bullet["dy"]
 
@@ -148,7 +264,7 @@ while running:
             screen,
             YELLOW,
             (int(bullet["x"]), int(bullet["y"])),
-            bullet["size"]
+            bullet["radius"]
         )
 
         if (
@@ -159,74 +275,227 @@ while running:
         ):
             bullets.remove(bullet)
 
-    # Update Enemies
+    # ===============================
+    # ENEMIES
+    # ===============================
+
     for enemy in enemies[:]:
-        angle = math.atan2(player_y - enemy["y"], player_x - enemy["x"])
+
+        angle = math.atan2(
+            player["y"] - enemy["y"],
+            player["x"] - enemy["x"]
+        )
 
         enemy["x"] += math.cos(angle) * enemy["speed"]
         enemy["y"] += math.sin(angle) * enemy["speed"]
 
+        # Enemy draw
         pygame.draw.circle(
             screen,
             RED,
             (int(enemy["x"]), int(enemy["y"])),
-            enemy["size"]
+            enemy["radius"]
         )
 
-        # Collision with Player
-        dist_to_player = math.hypot(
-            player_x - enemy["x"],
-            player_y - enemy["y"]
+        # Enemy health bar
+        pygame.draw.rect(
+            screen,
+            RED,
+            (
+                enemy["x"] - 20,
+                enemy["y"] - 35,
+                40,
+                5
+            )
         )
 
-        if dist_to_player < player_size + enemy["size"]:
-            player_health -= 0.2
+        pygame.draw.rect(
+            screen,
+            GREEN,
+            (
+                enemy["x"] - 20,
+                enemy["y"] - 35,
+                enemy["health"] * 0.4,
+                5
+            )
+        )
 
-        # Bullet Collision
+        # Collision with player
+        dist = math.hypot(
+            player["x"] - enemy["x"],
+            player["y"] - enemy["y"]
+        )
+
+        if dist < player["radius"] + enemy["radius"]:
+            player["health"] -= 0.2
+
+        # Bullet collision
         for bullet in bullets[:]:
+
             dist = math.hypot(
                 bullet["x"] - enemy["x"],
                 bullet["y"] - enemy["y"]
             )
 
-            if dist < bullet["size"] + enemy["size"]:
-                if enemy in enemies:
-                    enemies.remove(enemy)
+            if dist < enemy["radius"] + bullet["radius"]:
+
+                enemy["health"] -= 50
+
+                create_particles(enemy["x"], enemy["y"])
 
                 if bullet in bullets:
                     bullets.remove(bullet)
 
-                score += 10
+                if enemy["health"] <= 0:
+                    enemies.remove(enemy)
+                    score += 10
+
                 break
 
-    # HUD
-    health_text = font.render(
-        f"Health: {int(player_health)}",
-        True,
-        WHITE
-    )
+    # ===============================
+    # PARTICLES
+    # ===============================
 
-    score_text = font.render(
-        f"Score: {score}",
-        True,
-        WHITE
-    )
+    for particle in particles[:]:
 
-    screen.blit(health_text, (20, 20))
-    screen.blit(score_text, (20, 60))
+        particle["x"] += particle["dx"]
+        particle["y"] += particle["dy"]
 
-    # Game Over
-    if player_health <= 0:
-        game_over = font.render(
-            f"GAME OVER - Score: {score}",
-            True,
-            WHITE
+        particle["life"] -= 1
+
+        pygame.draw.circle(
+            screen,
+            YELLOW,
+            (int(particle["x"]), int(particle["y"])),
+            3
         )
 
-        screen.blit(game_over, (WIDTH // 2 - 180, HEIGHT // 2))
+        if particle["life"] <= 0:
+            particles.remove(particle)
+
+    # ===============================
+    # RELOAD SYSTEM
+    # ===============================
+
+    if player["reloading"]:
+
+        now = pygame.time.get_ticks()
+
+        if now - player["reload_time"] > 2000:
+            player["ammo"] = player["max_ammo"]
+            player["reloading"] = False
+
+    # ===============================
+    # UI
+    # ===============================
+
+    # Health Bar
+    pygame.draw.rect(screen, GRAY, (20, 20, 300, 30))
+    pygame.draw.rect(
+        screen,
+        GREEN,
+        (20, 20, player["health"] * 3, 30)
+    )
+
+    draw_text(
+        f"Health: {int(player['health'])}",
+        font,
+        WHITE,
+        25,
+        22
+    )
+
+    # Ammo
+    draw_text(
+        f"Ammo: {player['ammo']}/{player['max_ammo']}",
+        font,
+        WHITE,
+        20,
+        70
+    )
+
+    # Reloading
+    if player["reloading"]:
+        draw_text(
+            "Reloading...",
+            font,
+            YELLOW,
+            20,
+            110
+        )
+
+    # Score
+    draw_text(
+        f"Score: {score}",
+        font,
+        WHITE,
+        WIDTH - 200,
+        20
+    )
+
+    # Minimap
+    pygame.draw.rect(
+        screen,
+        BLACK,
+        (WIDTH - 220, HEIGHT - 220, 200, 200)
+    )
+
+    pygame.draw.circle(
+        screen,
+        BLUE,
+        (WIDTH - 120, HEIGHT - 120),
+        5
+    )
+
+    # Crosshair
+    pygame.draw.circle(
+        screen,
+        WHITE,
+        (mouse_x, mouse_y),
+        15,
+        2
+    )
+
+    pygame.draw.line(
+        screen,
+        WHITE,
+        (mouse_x - 20, mouse_y),
+        (mouse_x + 20, mouse_y),
+        2
+    )
+
+    pygame.draw.line(
+        screen,
+        WHITE,
+        (mouse_x, mouse_y - 20),
+        (mouse_x, mouse_y + 20),
+        2
+    )
+
+    # ===============================
+    # GAME OVER
+    # ===============================
+
+    if player["health"] <= 0:
+
+        draw_text(
+            "GAME OVER",
+            big_font,
+            RED,
+            WIDTH // 2 - 180,
+            HEIGHT // 2 - 50
+        )
+
+        draw_text(
+            f"Final Score: {score}",
+            font,
+            WHITE,
+            WIDTH // 2 - 90,
+            HEIGHT // 2 + 20
+        )
 
         pygame.display.update()
-        pygame.time.delay(3000)
+        pygame.time.delay(4000)
 
         running = False
 
